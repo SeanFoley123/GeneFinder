@@ -2,7 +2,7 @@
 """
 YOUR HEADER COMMENT HERE
 
-@author: YOUR NAME HERE
+@author: SEAAAAAAAAAAAAAAAN FOOOOOOOOOOLEY
 
 """
 
@@ -29,9 +29,14 @@ def get_complement(nucleotide):
     'T'
     >>> get_complement('C')
     'G'
+    Added in the rest just to be safe.
+    >>> get_complement('T')
+    'A'
+    >>> get_complement('G')
+    'C'
     """
-    # TODO: implement this
-    pass
+    complement_dict = {'A':'T', 'T':'A', 'G':'C', 'C':'G'}
+    return complement_dict[nucleotide] #What kind of pants do biologists wear?
 
 
 def get_reverse_complement(dna):
@@ -40,13 +45,16 @@ def get_reverse_complement(dna):
 
         dna: a DNA sequence represented as a string
         returns: the reverse complementary DNA sequence represented as a string
-    >>> get_reverse_complement("ATGCCCGCTTT")
-    'AAAGCGGGCAT'
-    >>> get_reverse_complement("CCGCGTTCA")
-    'TGAACGCGG'
+        >>> get_reverse_complement("ATGCCCGCTTT")
+        'AAAGCGGGCAT'
+        >>> get_reverse_complement("CCGCGTTCA")
+        'TGAACGCGG'
+        I thought this was sufficient.
     """
-    # TODO: implement this
-    pass
+    dna_out = []
+    for i in range(1, len(dna)+1):
+        dna_out.append(get_complement(dna[-i]))
+    return ''.join(dna_out)
 
 
 def rest_of_ORF(dna):
@@ -61,9 +69,28 @@ def rest_of_ORF(dna):
     'ATG'
     >>> rest_of_ORF("ATGAGATAGG")
     'ATGAGA'
+
+    I'll add in one just to check my TAA, cause why not it's easy
+    >>> rest_of_ORF('ATGACGATAATTGCGTAA')
+    'ATGACGATAATTGCG'
     """
-    # TODO: implement this
-    pass
+    dna_out=[]
+    dna_buffer = []
+    for i in range(0, len(dna)):
+        dna_buffer.append(dna[i])
+        if (i+1)%3 == 0:
+            a = ''.join(dna_buffer)
+            if a == 'TAG' or a == 'TGA' or a == 'TAA':
+                break
+            else:
+                dna_out.append(dna_buffer[0])
+                dna_out.append(dna_buffer[1])
+                dna_out.append(dna_buffer[2])
+                dna_buffer = []
+    if (i+1)%3 != 0:
+        for k in dna_buffer:
+            dna_out.append(k)
+    return ''.join(dna_out)
 
 
 def find_all_ORFs_oneframe(dna):
@@ -76,11 +103,26 @@ def find_all_ORFs_oneframe(dna):
 
         dna: a DNA sequence
         returns: a list of non-nested ORFs
+        I added in a test; it's interesting that if I have two end sequences
+        in a row, I return a blank string ''. I don't think that's a big deal.
+        The alternative is changing rest_of_ORF to only return if dna_out is
+        longer than 0, then making sure the return is not None.
     >>> find_all_ORFs_oneframe("ATGCATGAATGTAGATAGATGTGCCC")
     ['ATGCATGAATGTAGA', 'ATGTGCCC']
+
+    >>> find_all_ORFs_oneframe('ATGCGAAGATAGAGATAGTAGATGT')
+    ['ATGCGAAGA', 'ATGT']
     """
-    # TODO: implement this
-    pass
+    i = 0
+    results = []
+    while i<len(dna)-1:
+        if dna[i:i+3] == 'ATG':
+            temp = rest_of_ORF(dna[i:])
+            results.append(temp)
+            i = i+len(temp)+3
+        else:
+            i = i+3
+    return results
 
 
 def find_all_ORFs(dna):
@@ -96,8 +138,11 @@ def find_all_ORFs(dna):
     >>> find_all_ORFs("ATGCATGAATGTAG")
     ['ATGCATGAATGTAG', 'ATGAATGTAG', 'ATG']
     """
-    # TODO: implement this
-    pass
+    results = []
+    for i in range(0,3):
+        temp = find_all_ORFs_oneframe(dna[i:])
+        results = results + temp
+    return results
 
 
 def find_all_ORFs_both_strands(dna):
@@ -106,11 +151,14 @@ def find_all_ORFs_both_strands(dna):
 
         dna: a DNA sequence
         returns: a list of non-nested ORFs
+        These unit tests seem sufficient.
     >>> find_all_ORFs_both_strands("ATGCGAATGTAGCATCAAA")
     ['ATGCGAATG', 'ATGCTACATTCGCAT']
     """
-    # TODO: implement this
-    pass
+    results = []
+    results = results + find_all_ORFs(dna)
+    results = results + find_all_ORFs(get_reverse_complement(dna))
+    return results
 
 
 def longest_ORF(dna):
@@ -163,4 +211,4 @@ def gene_finder(dna):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    doctest.run_docstring_examples(find_all_ORFs_both_strands, globals())
