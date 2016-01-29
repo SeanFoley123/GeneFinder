@@ -50,7 +50,7 @@ def get_reverse_complement(dna):
         'AAAGCGGGCAT'
         >>> get_reverse_complement("CCGCGTTCA")
         'TGAACGCGG'
-        
+
         I thought this was sufficient.
     """
     dna_out = []
@@ -164,13 +164,22 @@ def find_all_ORFs_both_strands(dna):
 
 
 def longest_ORF(dna):
-    """ Finds the longest ORF on both strands of the specified DNA and returns it
-        as a string
+    """ Finds the longest ORFs on both strands of the specified DNA and returns them
+        as a list of strings
+        This test seems sufficient. It captures both forward and backward
+        and has multiple ORFs.
     >>> longest_ORF("ATGCGAATGTAGCATCAAA")
-    'ATGCTACATTCGCAT'
+    ['ATGCTACATTCGCAT']
     """
-    # TODO: implement this
-    pass
+    dna_results = find_all_ORFs_both_strands(dna)
+    longest = [""]
+    for i in dna_results:
+        if len(i)==len(longest[0]):
+            longest.append(i)
+        if len(i)>len(longest[0]):
+            longest = [i]
+    return longest
+
 
 
 def longest_ORF_noncoding(dna, num_trials):
@@ -180,8 +189,13 @@ def longest_ORF_noncoding(dna, num_trials):
         dna: a DNA sequence
         num_trials: the number of random shuffles
         returns: the maximum length longest ORF """
-    # TODO: implement this
-    pass
+    result = 0
+    for i in range(num_trials):
+        dna = shuffle_string(dna)
+        temp = len(longest_ORF(dna)[0])
+        if temp > result:
+            result = temp
+    return result
 
 
 def coding_strand_to_AA(dna):
@@ -192,15 +206,21 @@ def coding_strand_to_AA(dna):
         dna: a DNA sequence represented as a string
         returns: a string containing the sequence of amino acids encoded by the
                  the input DNA fragment
+        I could check more cases, but I think if my code works for a couple 
+        entries, the only issue I'd find through further testing would be
+        issues in amino_acids.py.
 
         >>> coding_strand_to_AA("ATGCGA")
         'MR'
         >>> coding_strand_to_AA("ATGCCCGCTTT")
         'MPA'
     """
-    # TODO: implement this
-    pass
-
+    i = 0
+    result = ""
+    while i < len(dna)/3:
+        result = result + aa_table[dna[3*i:3*i+3]]
+        i = i+1
+    return result  
 
 def gene_finder(dna):
     """ Returns the amino acid sequences that are likely coded by the specified dna
@@ -208,9 +228,19 @@ def gene_finder(dna):
         dna: a DNA sequence
         returns: a list of all amino acid sequences coded by the sequence dna.
     """
-    # TODO: implement this
-    pass
+    threshold = longest_ORF_noncoding(dna, 1500)
+    all_orfs = find_all_ORFs_both_strands(dna) # list of all the orfs given dna
+    long_enough_orfs = [] # list of those longer than the threshold
+    aminos = [] #list of amino acid sequences
+
+    for i in all_orfs:
+        if len(i)>=threshold:
+            long_enough_orfs.append(i)
+    for k in long_enough_orfs:
+        aminos.append(coding_strand_to_AA(k))
+    return aminos
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    dna = load_seq("./data/X73525.fa")
+    print gene_finder(dna)
