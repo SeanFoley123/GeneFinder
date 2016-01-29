@@ -29,6 +29,7 @@ def get_complement(nucleotide):
     'T'
     >>> get_complement('C')
     'G'
+
     Added in the rest just to be safe.
     >>> get_complement('T')
     'A'
@@ -49,6 +50,7 @@ def get_reverse_complement(dna):
         'AAAGCGGGCAT'
         >>> get_reverse_complement("CCGCGTTCA")
         'TGAACGCGG'
+        
         I thought this was sufficient.
     """
     dna_out = []
@@ -211,4 +213,4 @@ def gene_finder(dna):
 
 if __name__ == "__main__":
     import doctest
-    doctest.run_docstring_examples(find_all_ORFs_both_strands, globals())
+    doctest.testmod()
