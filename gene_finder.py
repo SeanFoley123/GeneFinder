@@ -234,11 +234,16 @@ def gene_finder(dna):
     aminos = [] #list of amino acid sequences
 
     for i in all_orfs:
-        if len(i)>=threshold:
+        if len(i)>threshold:
             long_enough_orfs.append(i)
     for k in long_enough_orfs:
         aminos.append(coding_strand_to_AA(k))
+    
     return aminos
+    
+    genes_out = open('genes_out', 'w')
+    for gene in aminos:
+        genes_out.write(gene + '\n')
 
 if __name__ == "__main__":
     import doctest
